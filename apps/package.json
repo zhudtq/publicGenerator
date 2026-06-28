@@ -1,0 +1,19 @@
+{
+  "name": "wechat-frontend",
+  "version": "1.0.0",
+  "description": "开源项目，自己的 token，非上班时间，自己在探索 AI 的 agent 上限。public account rich text generator, this is an open-source project published to github. No any sensitive infomation included",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^5.0.0"
+  }
+}
