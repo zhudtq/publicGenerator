@@ -7,6 +7,8 @@ const fs = require('fs');
 const config = require('../config');
 const { getAccessToken, getAccessTokenByApp } = require('../utils/token');
 const { getOAuthUrl, getUserByCode, createDraft, publishDraft } = require('../utils/wechat');
+const { fetchHotNews } = require('../utils/hotNews');
+const { generateArticle } = require('../utils/ai');
 
 // multer 配置：临时存储上传文件
 const upload = multer({ dest: 'uploads/' });
@@ -197,6 +199,40 @@ router.post('/publish', async (ctx) => {
     const frontendToken = extractToken(ctx);
     const publishId = await publishDraft(media_id, frontendToken);
     ctx.body = { success: true, publish_id: publishId };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { success: false, error: err.message };
+  }
+});
+
+/**
+ * 获取当日热点新闻
+ */
+router.get('/hot-news', async (ctx) => {
+  try {
+    const news = await fetchHotNews();
+    ctx.body = { success: true, data: news };
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = { success: false, error: err.message };
+  }
+});
+
+/**
+ * AI 根据热点生成文章
+ */
+router.post('/ai/generate-article', async (ctx) => {
+  const { title, description } = ctx.request.body;
+
+  if (!title) {
+    ctx.status = 400;
+    ctx.body = { success: false, error: '缺少 title 参数' };
+    return;
+  }
+
+  try {
+    const article = await generateArticle(title, description || '');
+    ctx.body = { success: true, data: article };
   } catch (err) {
     ctx.status = 500;
     ctx.body = { success: false, error: err.message };

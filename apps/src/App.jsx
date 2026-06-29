@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getAccessToken, uploadImage, createDraft, publishDraft } from './api';
+import HotNews from './components/HotNews';
 
 export default function App() {
   const [step, setStep] = useState(1);
@@ -138,6 +139,15 @@ export default function App() {
     return token.slice(0, 6) + '...' + token.slice(-4);
   }
 
+  // AI 生成文章后的回调
+  function handleArticleGenerated(aiTitle, aiContent) {
+    setTitle(aiTitle);
+    setContent(aiContent.replace(/<[^>]+>/g, '')); // 去除 HTML 标签填入 textarea
+    setStep(3); // 跳转到创建草稿步骤
+    setResult('AI 已生成文章，请检查并修改后提交');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   return (
     <div className="container">
       <h1>📝 微信公众号发布</h1>
@@ -255,6 +265,9 @@ export default function App() {
       {/* 结果/错误显示 */}
       {result && step < 5 && <div className="result success">{result}</div>}
       {error && <div className="result error">{error}</div>}
+
+      {/* 热点新闻区域 */}
+      <HotNews onArticleGenerated={handleArticleGenerated} />
     </div>
   );
 }

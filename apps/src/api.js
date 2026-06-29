@@ -57,3 +57,23 @@ export async function publishDraft(mediaId, token) {
   });
   return res.json();
 }
+
+/**
+ * 获取当日热点新闻
+ */
+export async function fetchHotNews() {
+  const res = await fetch(`${BASE_URL}/hot-news`);
+  return res.json();
+}
+
+/**
+ * AI 根据热点生成文章
+ */
+export async function generateArticle(title, description) {
+  const res = await fetch(`${BASE_URL}/ai/generate-article`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, description })
+  });
+  return res.json();
+}
