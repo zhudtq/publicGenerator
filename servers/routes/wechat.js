@@ -150,12 +150,53 @@ router.post('/upload', upload.single('media'), async (ctx) => {
       return;
     }
 
-    ctx.body = { success: true, media_id: data.media_id };
+    ctx.body = { success: true, media_id: data.media_id, url: data.url || '' };
   } catch (err) {
     // 清理临时文件
     if (ctx.file && ctx.file.path) {
       try { fs.unlinkSync(ctx.file.path); } catch (e) {}
     }
+    ctx.status = 500;
+    ctx.body = { success: false, error: err.message };
+  }
+});
+
+/**
+ * 获取素材列表（永久素材）
+ */
+router.get('/materials', async (ctx) => {
+  const { type = 'image', page = 1, count = 20 } = ctx.query;
+
+  try {
+    const frontendToken = extractToken(ctx);
+    const token = frontendToken || await getAccessToken();
+    const url = `https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token=${token}`;
+
+    const { data } = await axios.post(url, {
+      type,
+      offset: (page - 1) * count,
+      count: parseInt(count)
+    });
+
+    if (data.errcode) {
+      ctx.status = 500;
+      ctx.body = { success: false, error: data.errmsg };
+      return;
+    }
+
+    const items = (data.item || []).map(item => ({
+      media_id: item.media_id,
+      name: item.name,
+      url: item.url,
+      update_time: item.update_time
+    }));
+
+    ctx.body = {
+      success: true,
+      total: data.total_count,
+      items
+    };
+  } catch (err) {
     ctx.status = 500;
     ctx.body = { success: false, error: err.message };
   }

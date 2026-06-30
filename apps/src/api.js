@@ -59,6 +59,16 @@ export async function publishDraft(mediaId, token) {
 }
 
 /**
+ * 获取素材列表
+ */
+export async function fetchMaterials(token, type = 'image', page = 1) {
+  const res = await fetch(`${BASE_URL}/materials?type=${type}&page=${page}`, {
+    headers: authHeaders(token)
+  });
+  return res.json();
+}
+
+/**
  * 获取当日热点新闻
  */
 export async function fetchHotNews() {
